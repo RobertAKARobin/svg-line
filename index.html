@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+body {
+	align-items: center;
+	margin: 0;
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	height: 100vh;
+	padding: 20px;
+	width: 100vw;
+}
+
+svg {
+	border: 2px solid black;
+	height: 100%;
+	width: 100%;
+}
+
+polyline {
+	fill: none;
+	stroke: blue;
+	stroke-width: 2;
+	vector-effect: non-scaling-stroke;
+}
+		</style>
+	</head>
+
+	<body>
+		<svg viewbox="0 0 100 100" preserveAspectRatio="none">
+			<polyline id="line" />
+		</svg>
+
+		<script>
+const pixelData = [
+  {
+    week: 42,
+    value: 50,
+  },
+  {
+    week: 43,
+    value: 56
+  },
+  {
+    week: 44,
+    value: 66
+  },
+  {
+    week: 45,
+    value: 63
+  },
+  {
+    week: 46,
+    value: 45
+  },
+  {
+    week: 47,
+    value: 50
+  },
+  {
+    week: 48,
+    value: 55
+  },
+  {
+    week: 49,
+    value: 67
+  }
+];
+
+function toPolylinePoints(points, options = {}) {
+	const xValues = points.map(point => point.x);
+	const xMax = isNaN(options.xMax) ? Math.max(...xValues) : options.xMax;
+	const xMin = isNaN(options.xMin) ? Math.min(...xValues) : options.xMin;
+
+	const yValues = points.map(point => point.y);
+	const yMax = isNaN(options.yMax) ? Math.max(...yValues) : options.yMax;
+	const yMin = isNaN(options.yMin) ? Math.min(...yValues) : options.yMin;
+
+	return points.map(point => {
+		// Convert X to a percent of the range between the min X and the max X
+		const xPercent = (xMax - point.x) / (xMax - xMin);
+		// Ditto Y
+		const yPercent = (yMax - point.y) / (yMax - yMin);
+		// Convert the percentages to an integer
+		const x = Math.round(100 * xPercent);
+		const y = Math.round(100 * yPercent);
+		return `${x},${y}`;
+	}).join(' '); // Return a string like "x,y x,y x,y x,y"
+}
+
+// Convert data to x/y values
+const points = pixelData.map(data => {
+	return {
+		x: data.week,
+		y: data.value
+	};
+})
+const polylinePoints = toPolylinePoints(points, {
+	yMin: 0,
+	yMax: 100
+});
+document.getElementById('line').setAttribute('points', polylinePoints);
+		</script>
+	</body>
+</html>
